@@ -1,3 +1,7 @@
 data/
+.idea/
 __pycache__/
+backup_at_2019_02_19/
+origs/
+venv/
 save/
