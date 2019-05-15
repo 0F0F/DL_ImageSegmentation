@@ -61,8 +61,9 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))*100
 
 # SAVER
 merged = tf.summary.merge_all()
-saver = tf.train.Saver()
+
 sess = tf.Session() #config=tf.ConfigProto(log_device_placement=True)
+saver = tf.train.Saver()
 train_writer = tf.summary.FileWriter(SAVE_PATH, sess.graph)
 
 sess.run(tf.global_variables_initializer())
@@ -77,8 +78,8 @@ def train(epoch):
         train_x_1, train_x_2, train_y_ = read_data(train_list_all, s)
 
         start_time = time()
-        i_global, _, batch_loss, batch_acc, yy, yyy = sess.run(
-            [global_step, optimizer, cost, accuracy, ya, y],
+        i_global, _, batch_loss, batch_acc, yy, yyy, gt = sess.run(
+            [global_step, optimizer, cost, accuracy, ya, y, y_],
             feed_dict={x_1: train_x_1, x_2:train_x_2, y_: train_y_, learning_rate: lr(epoch), phase: True, dr_rate : 1})
         duration = time() - start_time
 
@@ -91,8 +92,16 @@ def train(epoch):
 
             msg = "Global step: {:>5} - [{}] {:>3}% - acc: {:.4f} - loss: {:.4f} - {:.1f} sample/sec - lr: {:.8f}"
             print(msg.format(i_global, bar, percentage, batch_acc, batch_loss, BATCH_SIZE / duration, lr(epoch)))
-            print("saving training result.. :" + SAVE_PATH + '/train/epoch_' + str(epoch)+'_s_'+str(s) + '.bmp')
-            cv2.imwrite(SAVE_PATH + '/train/epoch_' + str(epoch)+'_s_'+str(s) + '.bmp', np.uint8(yy[0,:,:,0] * 255))
+            #print("saving training result.. :" + SAVE_PATH + '/train/epoch_' + str(epoch)+'_s_'+str(s) + '.bmp')
+
+            thresholded = []
+            for yy_row in yy[0, :, :, 0]:
+                thresholded.append([255 if yyy > THRESHOLD else 0 for yyy in yy_row])
+
+            cv2.imwrite(SAVE_PATH + '/train/epoch_' + str(epoch) + '_s_' + str(s)  + '_thresholded.bmp', np.uint8(thresholded))
+            cv2.imwrite(SAVE_PATH + '/train/epoch_' + str(epoch)+'_s_'+str(s) + '_graysacale.bmp', np.uint8(yy[0,:,:,0] * 255))
+            cv2.imwrite(SAVE_PATH + '/train/epoch_' + str(epoch) + '_s_' + str(s) + '_groundtruth.bmp', np.uint8(gt[0] * 255))
+            del thresholded
 
     test_and_save(i_global, epoch)
 
@@ -104,8 +113,8 @@ def test_and_save(_global_step, epoch):
     accsum = 0
     for s in range(batch_size):
         test_x_1, test_x_2, train_y_ = read_data(test_list_all, s)
-        predicted_class, predicted_class_, acc, right = sess.run(
-            [ya, y, accuracy, y_320], #ya는 softmax취한것, y는 output자체
+        predicted_class, predicted_class_, acc, right, gt = sess.run(
+            [ya, y, accuracy, y_320, y_], #ya는 softmax취한것, y는 output자체
             feed_dict={x_1: test_x_1, x_2: test_x_2, y_: train_y_, learning_rate: lr(epoch), phase: False, dr_rate:1}
         )
         accsum+=acc
@@ -113,17 +122,28 @@ def test_and_save(_global_step, epoch):
     if(epoch==0) :
         cv2.imwrite(SAVE_PATH + '/rightimage' +  '.bmp', np.uint8(right[5, :, :, 0])*255)
 
-    print(predicted_class_[5, :, :, 0])
-    testimage = predicted_class[5, :, :, 0]
+    print(predicted_class_[0, :, :, 0])
+    testimage = predicted_class[0, :, :, 0]
     testimage[testimage < THRESHOLD] = 0
     testimage[testimage >= THRESHOLD] = 255
-    cv2.imwrite(SAVE_PATH +'/save/epoch_'+str(epoch)+'.bmp', np.uint8(testimage))
+
+    thresholded = []
+    for yy_row in predicted_class[0, :, :, 0]:
+        thresholded.append([255 if yyy > THRESHOLD else 0 for yyy in yy_row])
+
+    cv2.imwrite(SAVE_PATH + '/test/epoch_' + str(epoch) + '_thresholded1.bmp', np.uint8(testimage))
+    cv2.imwrite(SAVE_PATH + '/tset/epoch_' + str(epoch) + '_thresholded2.bmp', np.uint8(thresholded))
+    cv2.imwrite(SAVE_PATH + '/test/epoch_' + str(epoch) + '_graysacale.bmp',np.uint8(predicted_class[0, :, :, 0] * 255))
+    cv2.imwrite(SAVE_PATH + '/test/epoch_' + str(epoch) + '_groundtruth.bmp', np.uint8(gt[0] * 255))
+    del testimage
+    del thresholded
 
     hours, rem = divmod(time() - epoch_start, 3600)
     minutes, seconds = divmod(rem, 60)
     mes = "\nEpoch {} - accuracy: {:.2f}%  - time: {:0>2}:{:0>2}:{:05.2f}"
     print(mes.format((epoch+1), accsum/batch_size, int(hours), int(minutes), seconds))
 
+    print(global_accuracy, (accsum/batch_size))
     if global_accuracy != 0  and global_accuracy < (accsum/batch_size):
 
         summary = tf.Summary(value=[
@@ -131,9 +151,9 @@ def test_and_save(_global_step, epoch):
         ])
         train_writer.add_summary(summary, _global_step)
 
-        saver.save(sess, save_path=SAVE_PATH, global_step=_global_step)
+        ckpt_path = saver.save(sess, save_path=SAVE_PATH, global_step=_global_step)
 
-        mes = "This epoch receive better accuracy: {:.2f} > {:.2f}. Saving session..."
+        mes = "This epoch receive better accuracy: {:.2f} > {:.2f}. Saving session to " + ckpt_path
         print(mes.format((accsum/batch_size), global_accuracy))
         global_accuracy = (accsum/batch_size)
 

@@ -17,6 +17,6 @@ else:   # windows
 DATA_SETS = ['0-22249','0-14606','0-1096']
 
 TRAIN_RATION = 0.9
-TEST_RATION = 0.9
+TEST_RATION = 0.1
 
 THRESHOLD = 0.5
