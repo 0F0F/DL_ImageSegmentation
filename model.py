@@ -30,7 +30,7 @@ def model():
     y__= tf.expand_dims(y_,3)
     y_320 = tf.image.resize_bilinear(y__, size=[240, 320])
 
-    dr_rate = tf.placeholder("float")
+    # dr_rate = tf.placeholder("float")
 
     global_step = tf.Variable(initial_value=0, trainable=False, name='global_step')
     learning_rate = tf.placeholder(tf.float32, shape=[], name='learning_rate')
@@ -59,59 +59,59 @@ def model():
 
     # Current frame
     conv_1 = tf.nn.conv2d(x_1, W_hidden1, strides=[1, 1, 1, 1], padding='SAME')
-    conv_1 = tf.nn.dropout(conv_1, dr_rate)  # dropout
+    #conv_1 = tf.nn.dropout(conv_1, dr_rate)  # dropout
     conv_1_1 = tf.nn.conv2d(x_1, W_hidden1_1, strides=[1, 1, 1, 1], padding='SAME')
-    conv_1_1 = tf.nn.dropout(conv_1_1, dr_rate)  # dropout
+    #conv_1_1 = tf.nn.dropout(conv_1_1, dr_rate)  # dropout
     conv_1_2 = tf.nn.conv2d(x_1, W_hidden1_2, strides=[1, 1, 1, 1], padding='SAME')
-    conv_1_2 = tf.nn.dropout(conv_1_2, dr_rate)  # dropout
+    #conv_1_2 = tf.nn.dropout(conv_1_2, dr_rate)  # dropout
 
     conv_2 = tf.nn.conv2d(conv_1, W_hidden2, strides=[1, 2, 2, 1], padding='SAME')
-    conv_2 = tf.nn.dropout(conv_2, dr_rate)  # dropout
+    #conv_2 = tf.nn.dropout(conv_2, dr_rate)  # dropout
 
     conv_3_0 = tf.nn.conv2d(conv_2, W_hidden3, strides=[1, 2, 2, 1], padding='SAME')
-    conv_3_0 = tf.nn.dropout(conv_3_0, dr_rate)  # dropout
+    #conv_3_0 = tf.nn.dropout(conv_3_0, dr_rate)  # dropout
     conv_3_1 = tf.nn.conv2d(conv_1_1, W_hidden3_1, strides=[1, 4, 4, 1], padding='SAME')
-    conv_3_1 = tf.nn.dropout(conv_3_1, dr_rate)  # dropout
+    #conv_3_1 = tf.nn.dropout(conv_3_1, dr_rate)  # dropout
     conv_3 = tf.concat([conv_3_0, conv_3_1], -1)
 
     conv_4_0 = tf.nn.conv2d(conv_3, W_hidden4_0, strides=[1, 2, 2, 1], padding='SAME')
-    conv_4_0 = tf.nn.dropout(conv_4_0, dr_rate)  # dropout
+    #conv_4_0 = tf.nn.dropout(conv_4_0, dr_rate)  # dropout
     conv_4_1 = tf.nn.conv2d(conv_3_1, W_hidden4_1, strides=[1, 2, 2, 1], padding='SAME')
-    conv_4_1 = tf.nn.dropout(conv_4_1, dr_rate)  # dropout
+    #conv_4_1 = tf.nn.dropout(conv_4_1, dr_rate)  # dropout
     conv_4_2 = tf.nn.conv2d(conv_1_2, W_hidden4_2, strides=[1, 8, 8, 1], padding='SAME')
-    conv_4_2 = tf.nn.dropout(conv_4_2, dr_rate)  # dropout
+    #conv_4_2 = tf.nn.dropout(conv_4_2, dr_rate)  # dropout
     conv_4 = tf.concat([conv_4_0, conv_4_1, conv_4_2], -1)
 
     conv_5 = tf.nn.conv2d(conv_4, W_hidden5, strides=[1, 1, 1, 1], padding='SAME')
-    conv_5 = tf.nn.dropout(conv_5, dr_rate)  # dropout
+    #conv_5 = tf.nn.dropout(conv_5, dr_rate)  # dropout
 
     # reference frame
     r_conv_1 = tf.nn.conv2d(x_2, W_hidden1, strides=[1, 1, 1, 1], padding='SAME')
-    r_conv_1 = tf.nn.dropout(r_conv_1, dr_rate)  # dropout
+    #r_conv_1 = tf.nn.dropout(r_conv_1, dr_rate)  # dropout
     r_conv_1_1 = tf.nn.conv2d(x_2, W_hidden1_1, strides=[1, 1, 1, 1], padding='SAME')
-    r_conv_1_1 = tf.nn.dropout(r_conv_1_1, dr_rate)  # dropout
+    #r_conv_1_1 = tf.nn.dropout(r_conv_1_1, dr_rate)  # dropout
     r_conv_1_2 = tf.nn.conv2d(x_2, W_hidden1_2, strides=[1, 1, 1, 1], padding='SAME')
-    r_conv_1_2 = tf.nn.dropout(r_conv_1_2, dr_rate)  # dropout
+    #r_conv_1_2 = tf.nn.dropout(r_conv_1_2, dr_rate)  # dropout
 
     r_conv_2 = tf.nn.conv2d(r_conv_1, W_hidden2, strides=[1, 2, 2, 1], padding='SAME')
-    r_conv_2 = tf.nn.dropout(r_conv_2, dr_rate)  # dropout
+    #r_conv_2 = tf.nn.dropout(r_conv_2, dr_rate)  # dropout
 
     r_conv_3_0 = tf.nn.conv2d(r_conv_2, W_hidden3, strides=[1, 2, 2, 1], padding='SAME')
-    r_conv_3_0 = tf.nn.dropout(r_conv_3_0, dr_rate)  # dropout
+    #r_conv_3_0 = tf.nn.dropout(r_conv_3_0, dr_rate)  # dropout
     r_conv_3_1 = tf.nn.conv2d(r_conv_1_1, W_hidden3_1, strides=[1, 4, 4, 1], padding='SAME')
-    r_conv_3_1 = tf.nn.dropout(r_conv_3_1, dr_rate)  # dropout
+    #r_conv_3_1 = tf.nn.dropout(r_conv_3_1, dr_rate)  # dropout
     r_conv_3 = tf.concat([r_conv_3_0, r_conv_3_1], -1)
 
     r_conv_4_0 = tf.nn.conv2d(r_conv_3, W_hidden4_0, strides=[1, 2, 2, 1], padding='SAME')
-    r_conv_4_0 = tf.nn.dropout(r_conv_4_0, dr_rate)  # dropout
+    #r_conv_4_0 = tf.nn.dropout(r_conv_4_0, dr_rate)  # dropout
     r_conv_4_1 = tf.nn.conv2d(r_conv_3_1, W_hidden4_1, strides=[1, 2, 2, 1], padding='SAME')
-    r_conv_4_1 = tf.nn.dropout(r_conv_4_1, dr_rate)  # dropout
+    #r_conv_4_1 = tf.nn.dropout(r_conv_4_1, dr_rate)  # dropout
     r_conv_4_2 = tf.nn.conv2d(r_conv_1_2, W_hidden4_2, strides=[1, 8, 8, 1], padding='SAME')
-    r_conv_4_2 = tf.nn.dropout(r_conv_4_2, dr_rate)  # dropout
+    #r_conv_4_2 = tf.nn.dropout(r_conv_4_2, dr_rate)  # dropout
     r_conv_4 = tf.concat([r_conv_4_0, r_conv_4_1, r_conv_4_2], -1)
 
     r_conv_5 = tf.nn.conv2d(r_conv_4, W_hidden5, strides=[1, 1, 1, 1], padding='SAME')
-    r_conv_5 = tf.nn.dropout(r_conv_5, dr_rate)  # dropout
+    #r_conv_5 = tf.nn.dropout(r_conv_5, dr_rate)  # dropout
 
     sub_0 = tf.subtract(r_conv_5, conv_5)
     concat_0 = tf.concat([sub_0, conv_5], -1)
@@ -150,43 +150,43 @@ def model():
     # RB1 conv
     RB1_concat = tf.concat([upsampled_0, conv_4], -1)
     RB1_conv1 = tf.nn.conv2d(RB1_concat, RB_W_hidden1_1, strides=[1, 1, 1, 1], padding='SAME')
-    RB1_conv1 = tf.nn.dropout(RB1_conv1, dr_rate)  # dropout
+    #RB1_conv1 = tf.nn.dropout(RB1_conv1, dr_rate)  # dropout
     RB1_batch_norm = tf.contrib.layers.batch_norm(RB1_conv1, center=True, is_training=phase)
     RB1_conv2 = tf.nn.conv2d(RB1_batch_norm, RB_W_hidden1_2, strides=[1, 1, 1, 1], padding='SAME')
-    RB1_conv2 = tf.nn.dropout(RB1_conv2, dr_rate)  # dropout
+    #RB1_conv2 = tf.nn.dropout(RB1_conv2, dr_rate)  # dropout
     RB1_upsample1 = tf.image.resize_images(RB1_batch_norm, size=[60, 80])
     RB1_upsample2 = tf.image.resize_images(RB1_conv2, size=[60, 80])
 
     # RB2 conv
     RB2_concat = tf.concat([RB1_upsample1, RB1_upsample2, conv_3], -1)
     RB2_conv1 = tf.nn.conv2d(RB2_concat, RB_W_hidden2_1, strides=[1, 1, 1, 1], padding='SAME')
-    RB2_conv1 = tf.nn.dropout(RB2_conv1, dr_rate)  # dropout
+    #RB2_conv1 = tf.nn.dropout(RB2_conv1, dr_rate)  # dropout
     RB2_batch_norm = tf.contrib.layers.batch_norm(RB2_conv1, center=True, is_training=phase)
     RB2_conv2 = tf.nn.conv2d(RB2_batch_norm, RB_W_hidden2_2, strides=[1, 1, 1, 1], padding='SAME')
-    RB2_conv2 = tf.nn.dropout(RB2_conv2, dr_rate)  # dropout
+    #RB2_conv2 = tf.nn.dropout(RB2_conv2, dr_rate)  # dropout
     RB2_upsample1 = tf.image.resize_images(RB2_batch_norm, size=[120, 160])
     RB2_upsample2 = tf.image.resize_images(RB2_conv2, size=[120, 160])
 
     # RB3 conv
     RB3_concat = tf.concat([RB2_upsample1, RB2_upsample2, conv_2], -1)
     RB3_conv1 = tf.nn.conv2d(RB3_concat, RB_W_hidden3_1, strides=[1, 1, 1, 1], padding='SAME')
-    RB3_conv1 = tf.nn.dropout(RB3_conv1, dr_rate)  # dropout
+    #RB3_conv1 = tf.nn.dropout(RB3_conv1, dr_rate)  # dropout
     RB3_batch_norm = tf.contrib.layers.batch_norm(RB3_conv1, center=True, is_training=phase)
     RB3_conv2 = tf.nn.conv2d(RB3_batch_norm, RB_W_hidden3_2, strides=[1, 1, 1, 1], padding='SAME')
-    RB3_conv2 = tf.nn.dropout(RB3_conv2, dr_rate)  # dropout
+    #RB3_conv2 = tf.nn.dropout(RB3_conv2, dr_rate)  # dropout
     RB3_upsample1 = tf.image.resize_images(RB3_batch_norm, size=[240, 320])
     RB3_upsample2 = tf.image.resize_images(RB3_conv2, size=[240, 320])
 
     # RB4 conv
     RB4_concat = tf.concat([RB3_upsample1, RB3_upsample2, conv_1, conv_1_1, conv_1_2], -1)
     RB4_conv1 = tf.nn.conv2d(RB4_concat, RB_W_hidden4_1, strides=[1, 1, 1, 1], padding='SAME')
-    RB4_conv1 = tf.nn.dropout(RB4_conv1, dr_rate)  # dropout
+    #RB4_conv1 = tf.nn.dropout(RB4_conv1, dr_rate)  # dropout
     RB4_batch_norm = tf.contrib.layers.batch_norm(RB4_conv1, center=True, is_training=phase)
     y = tf.nn.conv2d(RB4_batch_norm, RB_W_hidden4_2, strides=[1, 1, 1, 1], padding='SAME')
     ya = tf.nn.softmax(y, -1)
 
 
-    return x_1, x_2, y_, y_320, y, global_step, learning_rate, RB1_upsample2, RB2_upsample2, RB3_upsample2, phase, ya, dr_rate #x_1, x_2, y_ 는 인풋이미지, y는 아웃풋 이미지
+    return x_1, x_2, y, global_step, learning_rate, RB1_upsample2, RB2_upsample2, RB3_upsample2, phase, ya #x_1, x_2, y_ 는 인풋이미지, y는 아웃풋 이미지
 
 def lr(epoch):
     learning_rate = 0.0001
